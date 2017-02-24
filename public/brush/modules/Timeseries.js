@@ -8,9 +8,11 @@ function Timeseries(){
 	};
 	var W, H, M ={t:30,r:40,b:30,l:40};
 	var brush = d3.brushX()
-		.on('end',brushend);
+		.on('end',brushend)
+		.on('brush', brushSnap);
+
 	var scaleX, scaleY;
-	var _dispatcher = d3.dispatch('timerange:select');
+	var _dispatcher = d3.dispatch('timerange:update');
 
 	var _brushable = true;
 	var _snapping = false;
@@ -34,7 +36,7 @@ function Timeseries(){
 
 		var dayBins = histogram(arr);
 
-		var maxY = d3.max(dayBins,function(d){return d.length});
+		var maxY = d3.max(dayBins,function(d){ return d.length; });
 		scaleX = d3.scaleTime().domain([T0,T1]).range([0,W]),
 		scaleY = d3.scaleLinear().domain([0,maxY]).range([H,0]);
 
@@ -67,7 +69,7 @@ function Timeseries(){
 		</svg>
 		*/
 		var svg = selection.selectAll('svg')
-			.data([dayBins])
+			.data([dayBins]);
 
 		var svgEnter = svg.enter()
 			.append('svg') //ENTER
@@ -97,23 +99,32 @@ function Timeseries(){
 			.transition()
 			.call(axisX);
 
-	}
+		if (_brushable) {
+			plot.select('.brush').call(brush);
+		}
+
+	};
 
 	function brushend(){
-		if(!d3.event.selection) {_dispatcher.call('timerange:select',this,null); return;}
-		var t0 = scaleX.invert(d3.event.selection[0]),
-			t1 = scaleX.invert(d3.event.selection[1]);
-		_dispatcher.call('timerange:select',this,[t0,t1]);
+		if(!d3.event.selection) return;
+
+		var s = d3.event.selection;
+		var t0 = scaleX.invert(s[0]),
+			t1 = scaleX.invert(s[1]);
+
+		_dispatcher.call('timerange:update', this, [t0, t1]);
+
+		// if(!d3.event.selection) {_dispatcher.call('timerange:select',this,null); return;}
 	}
 
 	function brushSnap(){
-  		if (d3.event.sourceEvent.type === "brush") return;
-  		var _t0 = scaleX.invert(d3.event.selection[0]),
-  			_t1 = scaleX.invert(d3.event.selection[1]),
-  			t0 = d3.timeMonth.floor(_t0),
-  			t1 = d3.timeMonth.ceil(_t1);
+		if (d3.event.sourceEvent.type === "brush") return;
+		var _t0 = scaleX.invert(d3.event.selection[0]), //start date
+			_t1 = scaleX.invert(d3.event.selection[1]), //end date
+			t0 = d3.timeMonth.floor(_t0),
+			t1 = d3.timeMonth.ceil(_t1);
 
-  		d3.select(this).call(d3.event.target.move, [scaleX(t0),scaleX(t1)]);
+		d3.select(this).call(d3.event.target.move, [scaleX(t0),scaleX(t1)]); // or brush.move,
 	}
 
 	//setting config values
@@ -123,35 +134,35 @@ function Timeseries(){
 		T0 = _[0];
 		T1 = _[1];
 		return this;
-	}
+	};
 
 	exports.interval = function(_){
 		_interval = _;
 		return this;
-	}
+	};
 
 	exports.value = function(_){
 		if(!arguments.length) return _accessor;
 		_accessor = _;
 		return this;
-	}
+	};
 
 	exports.on = function(){
 		_dispatcher.on.apply(_dispatcher,arguments);
 		return this;
-	}
+	};
 
 	exports.brushable = function(_){
 		if(!arguments.length) return _brushable;
 		_brushable = _;
 		return this;
-	}
+	};
 
 	exports.snapping = function(_){
 		if(!arguments.length) return _snapping;
 		_snapping = _;
 		return this;
-	}
+	};
 
 	return exports;
 }

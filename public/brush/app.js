@@ -14,8 +14,25 @@ var plot1 = d3.select('#plot1').append('svg')
 	.attr('transform','translate('+m.l+','+m.t+')');
 
 //Step 1: set up a brush function
+var brush = d3.brush()
+	.extent([ [0,0],[w,h] ]) //controls the size of the brush
+	.on('start', function(){
+		console.log('start');
+	})
+	.on('brush', function(){
+		d3.select(this).select('.selection').style('fill', 'red');
+	
+	})
+	.on('end', function(){
+		console.log(d3.event);
+		console.log(this);
+		d3.select(this).select('.selection').style('fill', 'gray');
+	});
+
 
 //Step 2: call brush function on a selection of <g> element
+// plot1.append('g').attr('class', 'brush')  //selection.call(object) 
+// 	.call(brush);
 
 //Step 3: define callback for "start", "brush", and "end" events
 
@@ -29,15 +46,38 @@ function dataLoaded(err,trips,stations){
 	
 	//Data model
 	var cf = crossfilter(trips);
-	var tripsByStartTime = cf.dimension(function(d){return d.startTime}),
-		tripsByStartStation = cf.dimension(function(d){return d.startStn}),
-		tripsByEndStation = cf.dimension(function(d){return d.endStn});
+	var tripsByStartTime = cf.dimension(function(d){ return d.startTime; }),
+		tripsByStartStation = cf.dimension(function(d){ return d.startStn; }),
+		tripsByEndStation = cf.dimension(function(d){ return d.endStn; });
 
-/*	Part 2: context + focus
+	// Part 2: context + focus
+	var timeseriesFocus = Timeseries().brushable(false); //disable brush for this module
+	
+	var timeseriesContext = Timeseries()
+		.on('timerange:update', function(range){
+			console.log('App:timerange:update');
+			console.log(range);
 
-/*	Part 3: set brush extent programmatically
-*/
+			globalDispatch.call('timerange:update', this, range); //pass this object so it can be used outside
+		});
 
+	d3.select('#plot2').datum(tripsByStartTime.top(Infinity)).call(timeseriesFocus);
+	d3.select('#plot3').datum(tripsByStartTime.top(Infinity)).call(timeseriesContext);
+
+	// Part 3: set brush extent programmatically
+
+	var timeseriesContext2 = Timeseries()
+		.on('timerange:update', function(range){
+			globalDispatch.call('timerange:update', this, range);
+		});
+
+	d3.select('#plot4').datum(tripsByStartTime.top(Infinity)).call(timeseriesContext2);
+
+
+	globalDispatch.on('timerange:update', function(range){
+		timeseriesFocus.domain(range);
+		d3.select('#plot2').call(timeseriesFocus);
+	});
 
 }
 
@@ -52,7 +92,7 @@ function parseTrips(d){
 		userType:d.subsc_type,
 		userGender:d.gender?d.gender:undefined,
 		userBirthdate:d.birth_date?+d.birth_date:undefined
-	}
+	};
 }
 
 function parseStations(d){
@@ -63,7 +103,7 @@ function parseStations(d){
 		name:d.station,
 		status:d.status,
 		terminal:d.terminal
-	}
+	};
 }
 
 function parseTime(timeStr){
