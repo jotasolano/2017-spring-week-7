@@ -22,53 +22,14 @@ for(var y = 0; y<=h; y+= h/10){
 			.style('fill','none');
 	}
 }
-var rect = svg.append('rect')
-	.attr('width',w)
-	.attr('height',h)
-	.attr('transform','translate('+m.l+','+m.t+')')
-	.style('fill','none')
-	.style('pointer-events','all');
 
 //Part 1: define zoom behavior
-var zoom = d3.zoom()
-	.scaleExtent([.5,3]);
-
 
 //Part 2: event listeners
-zoom
-	.on('start',function(){
-		console.log(d3.event.target);
-		console.log(d3.event.type);
-		console.log(d3.event.transform);
-		console.log(d3.event.sourceEvent);
-		console.log('---');
-	}) 
-	.on('zoom',function(){
-		var transform = d3.event.transform;
-		plot1
-			.attr('transform', 'translate('+ (transform.x+m.l) + ',' + (transform.y+m.t) + ')scale(' + transform.k +')')
-			.selectAll('circle')
-			.style('stroke-width',1/transform.k+'px');
-	})
-	.on('end',function(){
-		console.log(d3.event.target);
-		console.log(d3.event.type);
-		console.log(d3.event.transform);
-		console.log(d3.event.sourceEvent);
-		console.log('---');
-	});
 
 //Part 3: apply zoom behavior
-rect.call(zoom);
 
 //Part 4: setting zoom transform programmatically
-d3.select('body').on('click',function(){
-	rect.transition().call(zoom.transform, d3.zoomIdentity);
-});
-
-
-
-
 
 d3.queue()
 	.defer(d3.csv,'../data/hubway_trips_reduced.csv',parseTrips)
@@ -84,10 +45,10 @@ function dataLoaded(err,trips,stations){
 		tripsByEndStation = cf.dimension(function(d){return d.endStn});
 
 	//Create a map module
-	var map = Map()
+/*	var map = Map()
 		.height(600);
 	d3.select('#plot2').datum(stations).call(map);
-
+*/
 }
 
 function parseTrips(d){
