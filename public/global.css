@@ -1,0 +1,55 @@
+html,body,h1,h2,h3,h4,h4,p,div,a{
+	margin:0;
+	padding:0;
+}
+
+body{
+	background:rgb(252,252,252);
+}
+
+html,body,h1,h2,h3,h4,h4,p,div,a{
+	margin:0;
+	padding:0;
+}
+
+body{
+	background:rgb(252,252,252);
+}
+
+.plot{
+	min-height:300px;
+}
+.control{
+	height:100px;
+	position:relative;
+	padding:20px 100px 0;
+}
+	.control .navbar{background:white;}
+
+
+/*pie-charts*/
+.pie-chart .slice line{
+	fill:none;
+	stroke:rgb(80,80,80);
+	stroke-width:1px;
+}
+.pie-chart .slice .text{
+	fill:(80,80,80);
+}
+
+/*time-series*/
+.time-series .line{
+	stroke:rgb(80,80,80);
+	fill:none;
+	stroke-width:1px;
+}
+.time-series .area{
+	fill-opacity:.1;
+}
+.time-series .axis-y .tick line{
+	stroke:white;
+	stroke-width:.5px;
+}
+.time-series .axis-y .domain{
+	display:none;
+}
