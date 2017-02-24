@@ -14,31 +14,10 @@ var plot1 = d3.select('#plot1').append('svg')
 	.attr('transform','translate('+m.l+','+m.t+')');
 
 //Step 1: set up a brush function
-var brush = d3.brush()
-	.extent([[0,0],[w,h]]);
 
 //Step 2: call brush function on a selection of <g> element
-plot1.append('g').attr('class','brush')
-	.call(brush);
 
 //Step 3: define callback for "start", "brush", and "end" events
-brush
-	.on('start',function(d,i){
-		console.log('brush:start');
-		console.log(d3.event.type);
-	})
-	.on('brush',function(d,i){
-		console.log('brush:is brushing');
-		console.log(d3.event.type);
-	})
-	.on('brush.foo',function(d,i){
-		console.log('brush:second callback');
-	})
-	.on('end',function(d,i){
-		console.log('brush:end');
-		console.log(d3.event);
-	});
-
 
 
 d3.queue()
@@ -55,31 +34,9 @@ function dataLoaded(err,trips,stations){
 		tripsByEndStation = cf.dimension(function(d){return d.endStn});
 
 /*	Part 2: context + focus
-*/	var timeseriesFocus = Timeseries().brushable(false),
-		timeseriesContext = Timeseries()
-			.on('timerange:select',function(range){
-				globalDispatch.call('timerange:update',this,range);
-			});
-
-	d3.select('#plot2').datum(tripsByStartStation.top(Infinity)).call(timeseriesFocus);
-	d3.select('#plot3').datum(tripsByStartStation.top(Infinity)).call(timeseriesContext);
 
 /*	Part 3: set brush extent programmatically
 */
-	var timeseriesContext2 = Timeseries()
-		.snapping(true)
-		.on('timerange:select',function(range){
-			globalDispatch.call('timerange:update',this,range);
-		});
-	d3.select('#plot4').datum(tripsByStartStation.top(Infinity)).call(timeseriesContext2);
-
-
-	globalDispatch.on('timerange:update',function(range){
-		timeseriesFocus.domain(range);
-		d3.select('#plot2').call(timeseriesFocus);
-	});
-
-
 
 
 }

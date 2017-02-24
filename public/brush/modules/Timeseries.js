@@ -97,16 +97,6 @@ function Timeseries(){
 			.transition()
 			.call(axisX);
 
-		//Determine if brush snaps
-		if(_snapping){
-			brush
-				.on('brush', brushSnap);
-		}
-
-		//Call brush function
-		if(_brushable){
-			plot.select('.brush').call(brush);
-		}
 	}
 
 	function brushend(){
